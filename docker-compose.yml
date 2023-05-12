@@ -1,33 +1,56 @@
 version: '3.9'
 
 services:
-  postgres1:
+  postgres-shard-main:
     image: postgres:14.1-alpine
     restart: on-failure
     env_file: .env
     volumes:
-      - ./initdb.d/shard_1.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./initdb.d/utils.sql:/docker-entrypoint-initdb.d/utils.sql
+      - ./initdb.d/shard_main.sql:/docker-entrypoint-initdb.d/init.sql
       - pg_data_1:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:5432:5432"
 
-  postgres2:
+  postgres-shard1:
     image: postgres:14.1-alpine
     restart: on-failure
     env_file: .env
     volumes:
-      - ./initdb.d/shard_2.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./initdb.d/utils.sql:/docker-entrypoint-initdb.d/utils.sql
+      - ./initdb.d/shard_1.sql:/docker-entrypoint-initdb.d/init.sql
       - pg_data_2:/var/lib/postgresql/data
 
-  postgres3:
+  postgres-shard2:
     image: postgres:14.1-alpine
     restart: on-failure
     env_file: .env
     volumes:
-      - ./initdb.d/shard_3.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./initdb.d/utils.sql:/docker-entrypoint-initdb.d/utils.sql
+      - ./initdb.d/shard_2.sql:/docker-entrypoint-initdb.d/init.sql
       - pg_data_3:/var/lib/postgresql/data
+
+  postgres-partition:
+    image: postgres:14.1-alpine
+    restart: on-failure
+    env_file: .env
+    volumes:
+      - ./initdb.d/utils.sql:/docker-entrypoint-initdb.d/utils.sql
+      - ./initdb.d/only_partition.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data_4:/var/lib/postgresql/data
+
+  postgres-regular:
+    image: postgres:14.1-alpine
+    restart: on-failure
+    env_file: .env
+    volumes:
+      - ./initdb.d/utils.sql:/docker-entrypoint-initdb.d/utils.sql
+      - ./initdb.d/no_partition.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data_5:/var/lib/postgresql/data
 
 volumes:
   pg_data_1: { }
   pg_data_2: { }
   pg_data_3: { }
+  pg_data_4: { }
+  pg_data_5: { }
